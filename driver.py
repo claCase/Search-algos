@@ -17,13 +17,14 @@ import math
 
 ## The Class that Represents the Puzzle
 
+
 class PuzzleState(object):
 
     """docstring for PuzzleState"""
 
     def __init__(self, config, n, parent=None, action="Initial", cost=0):
 
-        if n*n != len(config) or n < 2:
+        if n * n != len(config) or n < 2:
 
             raise Exception("the length of config is not correct!")
 
@@ -81,9 +82,18 @@ class PuzzleState(object):
 
             new_config = list(self.config)
 
-            new_config[blank_index], new_config[target] = new_config[target], new_config[blank_index]
+            new_config[blank_index], new_config[target] = (
+                new_config[target],
+                new_config[blank_index],
+            )
 
-            return PuzzleState(tuple(new_config), self.n, parent=self, action="Left", cost=self.cost + 1)
+            return PuzzleState(
+                tuple(new_config),
+                self.n,
+                parent=self,
+                action="Left",
+                cost=self.cost + 1,
+            )
 
     def move_right(self):
 
@@ -99,9 +109,18 @@ class PuzzleState(object):
 
             new_config = list(self.config)
 
-            new_config[blank_index], new_config[target] = new_config[target], new_config[blank_index]
+            new_config[blank_index], new_config[target] = (
+                new_config[target],
+                new_config[blank_index],
+            )
 
-            return PuzzleState(tuple(new_config), self.n, parent=self, action="Right", cost=self.cost + 1)
+            return PuzzleState(
+                tuple(new_config),
+                self.n,
+                parent=self,
+                action="Right",
+                cost=self.cost + 1,
+            )
 
     def move_up(self):
 
@@ -117,9 +136,14 @@ class PuzzleState(object):
 
             new_config = list(self.config)
 
-            new_config[blank_index], new_config[target] = new_config[target], new_config[blank_index]
+            new_config[blank_index], new_config[target] = (
+                new_config[target],
+                new_config[blank_index],
+            )
 
-            return PuzzleState(tuple(new_config), self.n, parent=self, action="Up", cost=self.cost + 1)
+            return PuzzleState(
+                tuple(new_config), self.n, parent=self, action="Up", cost=self.cost + 1
+            )
 
     def move_down(self):
 
@@ -135,9 +159,18 @@ class PuzzleState(object):
 
             new_config = list(self.config)
 
-            new_config[blank_index], new_config[target] = new_config[target], new_config[blank_index]
+            new_config[blank_index], new_config[target] = (
+                new_config[target],
+                new_config[blank_index],
+            )
 
-            return PuzzleState(tuple(new_config), self.n, parent=self, action="Down", cost=self.cost + 1)
+            return PuzzleState(
+                tuple(new_config),
+                self.n,
+                parent=self,
+                action="Down",
+                cost=self.cost + 1,
+            )
 
     def expand(self):
 
@@ -173,8 +206,10 @@ class PuzzleState(object):
 
         return self.children
 
+
 class my_queue(Q.Queue):
     """docstring for my_queue"""
+
     def __init__(self):
         super(my_queue, self).__init__()
 
@@ -183,16 +218,19 @@ class my_queue(Q.Queue):
             for q in self.queue:
                 if q.config == item.config:
                     return True
-        
+
+
 ### Students need to change the method to have the corresponding parameters
 def writeOutput(state):
     state.display()
+
 
 def check_in_fringe(elem, fringe):
     for f in fringe:
         if f.config == elem.config:
             print("True")
             return True
+
 
 def bfs_search(initial_state):
     """BFS search"""
@@ -208,14 +246,15 @@ def bfs_search(initial_state):
             print("Optimal Found")
             writeOutput(state)
             return True
-        elif state is not None: 
+        elif state is not None:
             expand = state.expand()
             for exp in expand:
                 if exp.config not in visited and not exp in fringe:
                     fringe.put(exp)
-        i+=1
+        i += 1
         print(i)
     print("FINSHED")
+
 
 def dfs_search(initial_state):
     """DFS search"""
@@ -231,20 +270,22 @@ def dfs_search(initial_state):
             print("Optimal Found")
             writeOutput(state)
             return True
-        elif state is not None: 
+        elif state is not None:
             expand = state.expand()
             for exp in expand:
                 in_fringe = check_in_fringe(exp, fringe)
                 if exp.config not in visited and not in_fringe:
                     fringe.append(exp)
-        i+=1
+        i += 1
         print(i)
     print("FINSHED")
+
 
 def A_star_search(initial_state):
 
     """A * search"""
-    import heapq as hq 
+    import heapq as hq
+
     pq = []
 
 
@@ -254,28 +295,33 @@ def calculate_total_cost(state):
 
     ### STUDENT CODE GOES HERE ###
 
+
 def calculate_manhattan_dist(idx, value, n):
 
     """calculate the manhattan distance of a tile"""
-    x = abs(idx%n - value%n)
-    y = abs(idx//n - value//n)
-    return x+y 
+    x = abs(idx % n - value % n)
+    y = abs(idx // n - value // n)
+    return x + y
+
 
 def goal_state(n: int):
     puzl = []
-    for i in range(n*n):
+    for i in range(n * n):
         puzl.append(i)
     return PuzzleState(tuple(puzl), n)
+
 
 def test_goal(puzzle_state):
     """test the state is the goal state or not"""
     goal = goal_state(puzzle_state.n)
     if puzzle_state.config == goal.config:
-        return True 
-    else: 
+        return True
+    else:
         return False
 
+
 # Main Function that reads in Input and Runs corresponding Algorithm
+
 
 def main():
 
@@ -305,7 +351,7 @@ def main():
 
         print("Enter valid command arguments !")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
 
     main()
-
