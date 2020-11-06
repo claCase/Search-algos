@@ -218,18 +218,11 @@ class my_queue(Q.Queue):
             for q in self.queue:
                 if q.config == item.config:
                     return True
-
+            return False
 
 ### Students need to change the method to have the corresponding parameters
 def writeOutput(state):
     state.display()
-
-
-def check_in_fringe(elem, fringe):
-    for f in fringe:
-        if f.config == elem.config:
-            print("True")
-            return True
 
 
 def bfs_search(initial_state):
@@ -258,6 +251,13 @@ def bfs_search(initial_state):
 
 def dfs_search(initial_state):
     """DFS search"""
+    def check_in_fringe(elem, fringe):
+        for f in fringe:
+            if f.config == elem.config:
+                print("True")
+                return True
+        else:
+            return False
     i = 0
     visited = []
     fringe = []
@@ -282,12 +282,10 @@ def dfs_search(initial_state):
 
 
 def A_star_search(initial_state):
-
     """A * search"""
     import heapq as hq
 
     pq = []
-
 
 def calculate_total_cost(state):
 
