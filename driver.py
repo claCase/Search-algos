@@ -252,19 +252,28 @@ def bfs_search(initial_state):
 def dfs_search(initial_state):
     """DFS search"""
     def check_in_fringe(elem, fringe):
-        for f in fringe:
+        '''for f in fringe:
             if f.config == elem.config:
                 print("True")
                 return True
         else:
+            return False'''
+        if elem in fringe:
+            print("TRUE\n\n\n")
+            return True
+        else:
             return False
+
+
     i = 0
     visited = []
     fringe = []
-    fringe.append(initial_state)
+    n = initial_state.n
+    fringe.append(initial_state.config)
     while fringe:
         state = fringe.pop()
-        visited.append(state.config)
+        visited.append(state)
+        state = PuzzleState(state, n)
         reached = test_goal(state)
         if reached:
             print("Optimal Found")
@@ -273,9 +282,8 @@ def dfs_search(initial_state):
         elif state is not None:
             expand = state.expand()
             for exp in expand:
-                in_fringe = check_in_fringe(exp, fringe)
-                if exp.config not in visited and not in_fringe:
-                    fringe.append(exp)
+                if exp.config not in visited and exp.config not in fringe:
+                    fringe.append(exp.config)
         i += 1
         print(i)
     print("FINSHED")
@@ -301,7 +309,7 @@ def calculate_manhattan_dist(idx, value, n):
     y = abs(idx // n - value // n)
     return x + y
 
-
+'''
 def goal_state(n: int):
     puzl = []
     for i in range(n * n):
@@ -316,7 +324,22 @@ def test_goal(puzzle_state):
         return True
     else:
         return False
+'''
+##########
+def goal_state(n: int):
+    puzl = []
+    for i in range(n * n):
+        puzl.append(i)
+    return tuple(puzl)
 
+
+def test_goal(puzzle_state):
+    """test the state is the goal state or not"""
+    goal = goal_state(puzzle_state.n)
+    if puzzle_state.config == goal:
+        return True
+    else:
+        return False
 
 # Main Function that reads in Input and Runs corresponding Algorithm
 
