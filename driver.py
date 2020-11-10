@@ -408,7 +408,12 @@ def bfs_search(initial_state):
     nodes_expanded = i
     max_depth = g.get_max_depth()
     print("FINSHED")
+    print('''Path to goal: {0} \n 
+          path cost: {1} \n
+          nodes expanded: {2} \n
+          max search depth: {3} '''.format(path, path_cost, nodes_expanded, max_depth))
     return path, path_cost, nodes_expanded, max_depth
+
 
 def dfs_search(initial_state):
     from queue import LifoQueue
@@ -473,6 +478,10 @@ def dfs_search(initial_state):
     nodes_expanded = i
     max_depth = g.get_max_depth()
     print("FINSHED")
+    print("Path to goal: {} \n"
+          "path cost: {} \n"
+          "nodes expanded: {} \n"
+          "max search depth: {} ".format(path, path_cost, nodes_expanded, max_depth))
     return path, path_cost, nodes_expanded, max_depth
 
 
@@ -532,10 +541,15 @@ def A_star_search(initial_state):
         i += 1
         # print(i)
 
-    g.get_edges()
-    g.get_nodes()
-    g.get_path(node.key)
+    path, path_cost = g.get_path(node.key)
+    nodes_expanded = i
+    max_depth = g.get_max_depth()
     print("FINSHED")
+    print("Path to goal: {} \n"
+          "path cost: {} \n"
+          "nodes expanded: {} \n"
+          "max search depth: {} ".format(path, path_cost, nodes_expanded, max_depth))
+    return path, path_cost, nodes_expanded, max_depth
 
 
 def calculate_total_cost(state):
