@@ -227,7 +227,6 @@ class Node():
     def calc_depth(self, parent_depth):
         if self.parent_key:
             self.depth = parent_depth + 1
-            #print("node depth: %i"%self.depth)
         return self.depth
 
     def calc_cost(self):
@@ -235,7 +234,6 @@ class Node():
             self.cost = self.depth
         if self.type == "A*":
             self.cost = self.depth + self.h
-            #print("cost %i: depth: %i h: %i"%(self.cost, self.depth, self.h))
         return self.cost
 
     def add_child(self, node_key, action):
@@ -283,7 +281,6 @@ class Graph():
             if node.parent_key:
                 parent_depth = self.nodes[node.parent_key].depth
                 child_depth = node.calc_depth(parent_depth)
-                #print(parent_depth)
                 return child_depth
 
     def add_child(self, parent_key, action, child_key):
@@ -291,7 +288,6 @@ class Graph():
             parent = self.nodes[child_key].parent_key
             # check if already has parent and delete child from parent
             if parent is not None:
-                #print("parent not none %i"%parent)
                 if parent != parent_key:
                     print("HAS ALREADY PARENT")
                     self.calc_node_depth(parent)
