@@ -325,7 +325,7 @@ class Graph():
         i = 0
         if node_key in self.nodes.keys():
             while self.nodes[node_key].parent_key:
-                print(i)
+                #print(i)
                 i += 1
                 node = self.nodes[node_key]
                 parent = self.nodes[node.parent_key]
@@ -464,8 +464,9 @@ def dfs_search(initial_state):
         elif state is not None:
             expand = state.expand()
             # EXPAND STATES
-            for exp in expand.keys():
-                print(exp)
+            keys_reversed = [*expand.keys()][::-1]
+            for exp in keys_reversed:
+                #print(exp)
                 child_node = Node(expand[exp].config)
                 ingraph = g.get_node(child_node.key)
                 if ingraph:
