@@ -8,6 +8,7 @@ import queue as Q
 import time
 
 import psutil
+import os
 
 import sys
 
@@ -226,12 +227,15 @@ class Node():
     def calc_depth(self, parent_depth):
         if self.parent_key:
             self.depth = parent_depth + 1
+            #print("node depth: %i"%self.depth)
+        return self.depth
 
     def calc_cost(self):
-        if self.type == "bfs":
+        if self.type == "bfs" or self.type=="dfs":
             self.cost = self.depth
         if self.type == "A*":
             self.cost = self.depth + self.h
+            #print("cost %i: depth: %i h: %i"%(self.cost, self.depth, self.h))
         return self.cost
 
     def add_child(self, node_key, action):
@@ -250,6 +254,8 @@ class Node():
         # print(n)
         for idx, val in enumerate(self.value):
             if val != 0:
+                #print(val)
+                #print(type(val))
                 x = abs(idx % n - val % n)
                 y = abs(idx // n - val // n)
                 h += x + y
@@ -276,23 +282,29 @@ class Graph():
             node = self.nodes[node_key]
             if node.parent_key:
                 parent_depth = self.nodes[node.parent_key].depth
-                node.calc_depth(parent_depth)
+                child_depth = node.calc_depth(parent_depth)
+                #print(parent_depth)
+                return child_depth
 
-    def add_child(self, node_key, action, child_key):
-        if node_key in self.nodes.keys() and child_key in self.nodes.keys():
+    def add_child(self, parent_key, action, child_key):
+        if parent_key in self.nodes.keys() and child_key in self.nodes.keys():
             parent = self.nodes[child_key].parent_key
             # check if already has parent and delete child from parent
-            if parent:
-                if parent != node_key:
+            if parent is not None:
+                #print("parent not none %i"%parent)
+                if parent != parent_key:
                     print("HAS ALREADY PARENT")
-                    if self.nodes[parent].calc_cost() > self.nodes[node_key].calc_cost():
-                        self.nodes[node_key].add_child(child_key, action)
-                        self.nodes[child_key].add_parent(node_key)
+                    self.calc_node_depth(parent)
+                    self.calc_node_depth(parent_key)
+                    if self.nodes[parent].calc_cost() > self.nodes[parent_key].calc_cost():
+                        self.nodes[parent_key].add_child(child_key, action)
+                        self.nodes[child_key].add_parent(parent_key)
                         self.calc_node_depth(child_key)
-                        #self.nodes[child_key].calc_cost()
+                        self.nodes[child_key].calc_cost()
             else:
-                self.nodes[node_key].add_child(child_key, action)
-                self.nodes[child_key].add_parent(node_key)
+                self.nodes[parent_key].add_child(child_key, action)
+                self.nodes[child_key].add_parent(parent_key)
+                self.calc_node_depth(child_key)
                 self.nodes[child_key].calc_cost()
 
 
@@ -333,17 +345,19 @@ class Graph():
                 parent = self.nodes[node.parent_key]
                 action = parent.children_keys[node.key]
                 actions.append(action)
-                path_cost += node.calc_cost()
                 node_key = parent.key
+
+        path_cost = i
         actions = actions[::-1]
-        print(actions)
+        #print(actions)
+        #print(path_cost)
         return actions, path_cost
 
     def get_max_depth(self):
         max_depth = 0
         for node in self.nodes:
-            if node.depth > max_depth:
-                max_depth = node.depth
+            if self.nodes[node].depth > max_depth:
+                max_depth = self.nodes[node].depth
         return max_depth
 
 ### Students need to change the method to have the corresponding parameters
@@ -352,6 +366,8 @@ def writeOutput(state):
 
 
 def bfs_search(initial_state):
+    init_time = time.time()
+    process = psutil.Process(os.getpid())
     i = 0
     fringe = Q.Queue()
     g = Graph()
@@ -376,10 +392,26 @@ def bfs_search(initial_state):
         state = PuzzleState(state, n)
         reached = test_goal(state)
         if reached:
+            final_time = time.time()
+            delta = final_time- init_time
+            ram_usage = process.memory_info().rss * 1e-6
             print("Optimal Found")
             writeOutput(state)
-            g.get_path(node.key)
-            return True
+            print("FINSHED")
+            path, path_cost = g.get_path(node.key)
+            nodes_expanded = i
+            max_depth = g.get_max_depth()
+            sol = "path_to_goal: %s \n" % path + \
+                  "cost_of_path: %s \n" % path_cost + \
+                  "nodes_expanded: %i \n" % nodes_expanded + \
+                  "search_depth: %i \n" % path_cost + \
+                  "max_search_depth: %i \n" % max_depth + \
+                  "running_time: %f \n" % delta + \
+                  "max_ram_usage: %f \n" % ram_usage
+            print(sol)
+            with open("output.txt", "wb") as file:
+                file.write(sol.encode("utf-8"))
+            return path, path_cost, nodes_expanded, max_depth
 
         elif state is not None:
             expand = state.expand()
@@ -404,31 +436,24 @@ def bfs_search(initial_state):
         i += 1
         #print(i)
 
-    path, path_cost = g.get_path(node.key)
-    nodes_expanded = i
-    max_depth = g.get_max_depth()
-    print("FINSHED")
-    print('''Path to goal: {0} \n 
-          path cost: {1} \n
-          nodes expanded: {2} \n
-          max search depth: {3} '''.format(path, path_cost, nodes_expanded, max_depth))
-    return path, path_cost, nodes_expanded, max_depth
+
 
 
 def dfs_search(initial_state):
     from queue import LifoQueue
     """DFS search"""
-
+    init_time = time.time()
+    process = psutil.Process(os.getpid())
     i = 0
     fringe = LifoQueue()
     fringe.put(initial_state.config)
     n = initial_state.n
     g = Graph()
-    root = Node(initial_state.config, type="bfs")
+    root = Node(initial_state.config, type="dfs")
     g.add_node(root)
     while not fringe.empty():
         state = fringe.get()
-        node = Node(state, "bfs")
+        node = Node(state, "dfs")
         #visited.append(state)
         node_g = g.get_node(node.key)
         # check if node is in fringe or visited
@@ -444,10 +469,26 @@ def dfs_search(initial_state):
         state = PuzzleState(state, n)
         reached = test_goal(state)
         if reached:
+            final_time = time.time()
+            delta = final_time - init_time
+            ram_usage = process.memory_info().rss * 1e-6
             print("Optimal Found")
             writeOutput(state)
-            g.get_path(node.key)
-            return True
+            print("FINSHED")
+            path, path_cost = g.get_path(node.key)
+            nodes_expanded = i
+            max_depth = g.get_max_depth()
+            sol = "path_to_goal: %s \n" % path + \
+                  "cost_of_path: %s \n" % path_cost + \
+                  "nodes_expanded: %i \n" % nodes_expanded + \
+                  "search_depth: %i \n" % path_cost + \
+                  "max_search_depth: %i \n" % max_depth + \
+                  "running_time: %f \n" % delta + \
+                  "max_ram_usage: %f \n" % ram_usage
+            print(sol)
+            with open("output.txt", "wb") as file:
+                file.write(sol.encode("utf-8"))
+            return path, path_cost, nodes_expanded, max_depth
 
         elif state is not None:
             expand = state.expand()
@@ -455,7 +496,7 @@ def dfs_search(initial_state):
             keys_reversed = [*expand.keys()][::-1]
             for exp in keys_reversed:
                 #print(exp)
-                child_node = Node(expand[exp].config, type="bfs")
+                child_node = Node(expand[exp].config, type="dfs")
                 ingraph = g.get_node(child_node.key)
                 if ingraph:
                     node_visit = ingraph.visited
@@ -474,31 +515,22 @@ def dfs_search(initial_state):
         i += 1
         #print(i)
 
-    path, path_cost = g.get_path(node.key)
-    nodes_expanded = i
-    max_depth = g.get_max_depth()
-    print("FINSHED")
-    print("Path to goal: {} \n"
-          "path cost: {} \n"
-          "nodes expanded: {} \n"
-          "max search depth: {} ".format(path, path_cost, nodes_expanded, max_depth))
-    return path, path_cost, nodes_expanded, max_depth
-
-
 def A_star_search(initial_state):
     """A * search"""
     import heapq as hq
+    init_time = time.time()
+    process = psutil.Process(os.getpid())
 
     i = 0
     fringe = []
     g = Graph()
-    root = Node(initial_state.config)
+    root = Node(initial_state.config, "A*")
     g.add_node(root)
-    fringe.push(fringe, (root.calc_cost(), root.value))
+    hq.heappush(fringe, (root.calc_cost(), root.value))
     n = initial_state.n
 
-    while not fringe.empty():
-        state = fringe.get()
+    while fringe:
+        state = hq.heappop(fringe)[1]
         node = Node(state, type="A*")
         node_g = g.get_node(node.key)
         if node_g:
@@ -513,10 +545,26 @@ def A_star_search(initial_state):
         state = PuzzleState(state, n)
         reached = test_goal(state)
         if reached:
+            final_time = time.time()
+            delta = final_time - init_time
+            ram_usage = process.memory_info().rss * 1e-6
             print("Optimal Found")
             writeOutput(state)
-            g.get_path(node.key)
-            return True
+            print("FINSHED")
+            path, path_cost = g.get_path(node.key)
+            nodes_expanded = i
+            max_depth = g.get_max_depth()
+            sol = "path_to_goal: %s \n" % path + \
+                  "cost_of_path: %s \n" % path_cost + \
+                  "nodes_expanded: %i \n" % nodes_expanded + \
+                  "search_depth: %i \n" % path_cost + \
+                  "max_search_depth: %i \n" % max_depth + \
+                  "running_time: %f \n" % delta + \
+                  "max_ram_usage: %f \n" % ram_usage
+            print(sol)
+            with open("output.txt", "wb") as file:
+                file.write(sol.encode("utf-8"))
+            return path, path_cost, nodes_expanded, max_depth
 
         elif state is not None:
             expand = state.expand()
@@ -535,42 +583,17 @@ def A_star_search(initial_state):
 
                 if not node_visit and not infringe:
                     g.add_child(node_g.key, exp, child_node.key)
-                    fringe.push(hq, (child_node.calc_cost(), child_node))
+                    hq.heappush(fringe, (child_node.calc_cost(), child_node.value))
                     child_node.infringe = True
 
         i += 1
         # print(i)
-
-    path, path_cost = g.get_path(node.key)
-    nodes_expanded = i
-    max_depth = g.get_max_depth()
-    print("FINSHED")
-    print("Path to goal: {} \n"
-          "path cost: {} \n"
-          "nodes expanded: {} \n"
-          "max search depth: {} ".format(path, path_cost, nodes_expanded, max_depth))
-    return path, path_cost, nodes_expanded, max_depth
-
-
-def calculate_total_cost(state):
-    """calculate the total estimated cost of a state"""
-
-    ### STUDENT CODE GOES HERE ###
-
-
-def calculate_manhattan_dist(idx, value, n):
-    """calculate the manhattan distance of a tile"""
-    x = abs(idx % n - value % n)
-    y = abs(idx // n - value // n)
-    return x + y
-
 
 def goal_state(n: int):
     puzl = []
     for i in range(n * n):
         puzl.append(i)
     return PuzzleState(tuple(puzl), n)
-
 
 def test_goal(puzzle_state):
     """test the state is the goal state or not"""
@@ -582,8 +605,6 @@ def test_goal(puzzle_state):
 
 
 # Main Function that reads in Input and Runs corresponding Algorithm
-
-
 def main():
     sm = sys.argv[1].lower()
 
