@@ -201,8 +201,6 @@ class PuzzleState(object):
         return self.children
 
 
-
-
 class Node():
     def __init__(self, value, type, parent_key=None):
         self.value = value
@@ -230,7 +228,7 @@ class Node():
         return self.depth
 
     def calc_cost(self):
-        if self.type == "bfs" or self.type=="dfs":
+        if self.type == "bfs" or self.type == "dfs":
             self.cost = self.depth
         if self.type == "A*":
             self.cost = self.depth + self.h
@@ -252,8 +250,8 @@ class Node():
         # print(n)
         for idx, val in enumerate(self.value):
             if val != 0:
-                #print(val)
-                #print(type(val))
+                # print(val)
+                # print(type(val))
                 x = abs(idx % n - val % n)
                 y = abs(idx // n - val // n)
                 h += x + y
@@ -303,7 +301,6 @@ class Graph():
                 self.calc_node_depth(child_key)
                 self.nodes[child_key].calc_cost()
 
-
     def get_nodes(self, ):
         for node in self.nodes.keys():
             print(self.nodes[node].key)
@@ -328,14 +325,13 @@ class Graph():
         if node.parent_key:
             return node.parent_key
 
-
     def get_path(self, node_key):
         actions = []
         i = 0
         path_cost = 0
         if node_key in self.nodes.keys():
             while self.nodes[node_key].parent_key:
-                #print(i)
+                # print(i)
                 i += 1
                 node = self.nodes[node_key]
                 parent = self.nodes[node.parent_key]
@@ -345,8 +341,8 @@ class Graph():
 
         path_cost = i
         actions = actions[::-1]
-        #print(actions)
-        #print(path_cost)
+        # print(actions)
+        # print(path_cost)
         return actions, path_cost
 
     def get_max_depth(self):
@@ -355,6 +351,7 @@ class Graph():
             if self.nodes[node].depth > max_depth:
                 max_depth = self.nodes[node].depth
         return max_depth
+
 
 ### Students need to change the method to have the corresponding parameters
 def writeOutput(state):
@@ -389,7 +386,7 @@ def bfs_search(initial_state):
         reached = test_goal(state)
         if reached:
             final_time = time.time()
-            delta = final_time- init_time
+            delta = final_time - init_time
             ram_usage = process.memory_info().rss * 1e-6
             print("Optimal Found")
             writeOutput(state)
@@ -419,7 +416,7 @@ def bfs_search(initial_state):
                     node_visit = ingraph.visited
                     infringe = ingraph.infringe
                 else:
-                    #print("ADDING EXPANDED NODE")
+                    # print("ADDING EXPANDED NODE")
                     g.add_node(child_node)
                     node_visit = False
                     infringe = False
@@ -430,9 +427,7 @@ def bfs_search(initial_state):
                     g.add_child(node_g.key, exp, child_node.key)
 
         i += 1
-        #print(i)
-
-
+        # print(i)
 
 
 def dfs_search(initial_state):
@@ -450,7 +445,7 @@ def dfs_search(initial_state):
     while not fringe.empty():
         state = fringe.get()
         node = Node(state, "dfs")
-        #visited.append(state)
+        # visited.append(state)
         node_g = g.get_node(node.key)
         # check if node is in fringe or visited
         if node_g:
@@ -491,14 +486,14 @@ def dfs_search(initial_state):
             # EXPAND STATES
             keys_reversed = [*expand.keys()][::-1]
             for exp in keys_reversed:
-                #print(exp)
+                # print(exp)
                 child_node = Node(expand[exp].config, type="dfs")
                 ingraph = g.get_node(child_node.key)
                 if ingraph:
                     node_visit = ingraph.visited
                     infringe = ingraph.infringe
                 else:
-                    #print("ADDING EXPANDED NODE")
+                    # print("ADDING EXPANDED NODE")
                     g.add_node(child_node)
                     node_visit = False
                     infringe = False
@@ -507,9 +502,10 @@ def dfs_search(initial_state):
                     fringe.put(expand[exp].config)
                     child_node.infringe = True
                     g.add_child(node_g.key, exp, child_node.key)
-            #quit()
+            # quit()
         i += 1
-        #print(i)
+        # print(i)
+
 
 def A_star_search(initial_state):
     """A * search"""
@@ -585,11 +581,13 @@ def A_star_search(initial_state):
         i += 1
         # print(i)
 
+
 def goal_state(n: int):
     puzl = []
     for i in range(n * n):
         puzl.append(i)
     return PuzzleState(tuple(puzl), n)
+
 
 def test_goal(puzzle_state):
     """test the state is the goal state or not"""
