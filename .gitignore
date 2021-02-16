@@ -2,3 +2,9 @@
 __pycache__/
 .gitconfig
 11/aclImdb/
+imdb_te.csv
+imbd_tr.csv 
+imdb_tr.sample.csv
+NLP
+week 11/.idea 
+

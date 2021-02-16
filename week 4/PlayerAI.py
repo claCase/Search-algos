@@ -26,10 +26,10 @@ class PlayerAI(BaseAI):
         if self.weights is not None:
             prob = self.compute_prob(self.weights)
         else:
-            w1 = 0
-            w2 = 1
-            w3 = 2
-            w4 = 1
+            w1 = 1
+            w2 = 0
+            w3 = 5
+            w4 = 0
             w5 = 0
             w6 = 0
             array = [w1, w2, w3, w4, w5, w6]
@@ -50,18 +50,18 @@ class PlayerAI(BaseAI):
 
     def grid_credit(self, grid):
         WEIGHT_MATRIX1 = [
-            [20, 5, 2, 1],
-            [10, 5, 16, 2],
-            [8, 6, 2, 1],
+            [2048, 1024, 64, 32],
+            [512, 128, 16, 2],
+            [256, 8, 2, 1],
             [4, 2, 1, 1]
         ]
 
         #SNAKE MATRIX
         WEIGHT_MATRIX2 = [
-            [20, 16, 15, 14],
-            [10, 11, 12, 13],
-            [9, 8, 7, 6],
-            [2, 3, 4, 5]
+            [16, 15, 14, 13],
+            [9, 10, 11, 12],
+            [5, 6, 7, 8],
+            [1, 2, 3, 4]
         ]
         '''
         for i in range(4):
@@ -72,7 +72,7 @@ class PlayerAI(BaseAI):
         # choice = random.choice((0,1))
 
         utility = 0
-        for i, wi in enumerate(WEIGHT_MATRIX2):
+        for i, wi in enumerate(WEIGHT_MATRIX1):
             for j, wj in enumerate(wi):
                 utility += wj * grid.getCellValue([i, j])
         return utility

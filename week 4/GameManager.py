@@ -171,7 +171,7 @@ def main():
     values = [np.linspace(0,1,10) for _ in range(6)]
     search_values = product(values)'''
     samples = 1
-    iterations = 10
+    iterations = 2
     n_weights = 6
     iterable = [np.random.uniform(0, 1, n_weights) for _ in range(samples)]
     pairs = np.tile(iterable, iterations).reshape(samples*iterations, n_weights)
